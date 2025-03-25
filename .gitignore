@@ -27,3 +27,5 @@ dist-ssr
 
 # Ignore other unnecessary files
 Thumbs.db
+
+!/public/php-stream-api/storage/cache/json_cache/8/V/
