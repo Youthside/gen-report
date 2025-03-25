@@ -27,8 +27,7 @@ export default function SyncButton() {
   const handleSync = async () => {
     setSyncStatus("syncing");
     try {
-      await refreshAllDataFromPhpAsync
-      refreshAllDataFromPhpAsync();
+      await refreshAllDataFromPhpAsync();
       setSyncStatus("success");
       setShowSuccessAnimation(true);
       setTimeout(() => {
