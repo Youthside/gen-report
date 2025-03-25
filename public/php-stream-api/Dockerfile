@@ -1,25 +1,27 @@
-# PHP Streaming API Dockerfile
-
-# Base image with PHP and Apache
+# PHP 8.2 + Apache
 FROM php:8.2-apache
 
-# Install required PHP extensions
+# PDO MySQL yükle
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Enable Apache mod_rewrite (if needed)
+# mod_rewrite aktif
 RUN a2enmod rewrite
 
-# Set working directory
+# Çalışma dizini (container içinde)
 WORKDIR /var/www/html
 
-# Copy application files
+# Kodları kopyala (lokaldeki her şeyi container içine)
 COPY . /var/www/html
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html
+# Apache ayarını override et
+COPY ./apache.conf /etc/apache2/sites-available/000-default.conf
 
-# Expose port 80
+# İzinler
+RUN chown -R www-data:www-data /var/www/html
+RUN chmod -R 755 /var/www/html
+
+# Port 80 expose
 EXPOSE 80
 
-# Start Apache
+# Başlat
 CMD ["apache2-foreground"]

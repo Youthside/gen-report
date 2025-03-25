@@ -151,9 +151,16 @@ export default function useDataManager() {
       const response = await httpClientPHP.get<SubmissionData[]>(
         "/?route=all-data"
       );
-      dispatch(setAllData(response.data));
-    } catch (error) {
-      console.error("PHP API veri çekme hatası:", error);
+      if (response.status === 200 && response.data) {
+        dispatch(setAllData(response.data));
+      } else {
+        console.error("PHP API yanıtı boş veya geçersiz:", response);
+      }
+    } catch (error: any) {
+      console.error(
+        "PHP API veri çekme hatası:",
+        error?.response?.data || error
+      );
     } finally {
       setLoading(false);
     }
@@ -173,7 +180,10 @@ export default function useDataManager() {
         console.error("PHP API refresh yanıtı boş veya geçersiz:", response);
       }
     } catch (error: any) {
-      console.error("❌ PHP API yenileme hatası:", error?.response?.data || error);
+      console.error(
+        "❌ PHP API yenileme hatası:",
+        error?.response?.data || error
+      );
     } finally {
       setLoading(false);
     }
