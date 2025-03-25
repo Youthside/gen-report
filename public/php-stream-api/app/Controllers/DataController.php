@@ -1,6 +1,11 @@
 <?php
 
+
 namespace App\Controllers;
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 use App\Services\Database;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
