@@ -166,9 +166,14 @@ export default function useDataManager() {
       const response = await httpClientPHP.get<SubmissionData[]>(
         "/?route=all-data&refresh=1"
       );
-      dispatch(setAllData(response.data));
-    } catch (error) {
-      console.error("PHP API yenileme hatası:", error);
+      if (response.status === 200 && response.data) {
+        dispatch(setAllData(response.data));
+        console.log("✅ PHP Refresh Başarılı");
+      } else {
+        console.error("PHP API refresh yanıtı boş veya geçersiz:", response);
+      }
+    } catch (error: any) {
+      console.error("❌ PHP API yenileme hatası:", error?.response?.data || error);
     } finally {
       setLoading(false);
     }
