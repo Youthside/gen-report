@@ -149,7 +149,7 @@ export default function useDataManager() {
     try {
       // PHP API'den veriyi çekiyoruz
       const response = await httpClientPHP.get<SubmissionData[]>(
-        "/?route=all-data"
+        "/all-data.php"
       );
       if (response.status === 200 && response.data) {
         dispatch(setAllData(response.data));
@@ -192,7 +192,7 @@ export default function useDataManager() {
   const lastSenkronDateFromPhp = async () => {
     try {
       const response = await httpClientPHP.get<LastSyncData | null>(
-        "/?route=last-senkron-date"
+        "/last-senkron-date.php"
       );
       return response.data || null;
     } catch (error) {
