@@ -1,4 +1,9 @@
 <?php
+// tüm hataları göster
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
@@ -6,11 +11,12 @@ header('Content-Type: application/json');
 
 require_once 'DbConnection.php';
 
-$cacheFile = __DIR__ . '/../cache/all-data.json';
+$cacheFile = __DIR__ . '/../cache/all-data.json.gz';
 $refresh = isset($_GET['refresh']) ? $_GET['refresh'] : false;
 
 if (!$refresh && file_exists($cacheFile)) { // 5dk cache süresi
-    echo file_get_contents($cacheFile);
+    header('Content-Encoding: gzip');
+    readfile($cacheFile);
     exit;
 }
 
@@ -38,10 +44,21 @@ try {
     $stmt->execute();
     $data = $stmt->fetchAll();
 
-    $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    file_put_contents($cacheFile, $jsonData);
+    $cacheDir = dirname($cacheFile);
+    if (!is_dir($cacheDir)) {
+        mkdir($cacheDir, 0777, true);
+    }
 
-    echo $jsonData;
+    if (!file_exists($cacheFile)) {
+        touch($cacheFile);
+        chmod($cacheFile, 0777);
+    }
+
+    $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    unset($data); // Belleği temizle
+    file_put_contents($cacheFile, gzencode($jsonData, 9));
+
+    echo gzencode($jsonData, 9);
 
 } catch (PDOException $e) {
     echo json_encode(["error" => "Veritabanı hatası: " . $e->getMessage()]);

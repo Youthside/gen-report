@@ -72,15 +72,17 @@ export default function useDataManager() {
     : 0;
 
   // DÜNKÜ BAŞVURU SAYISI
-  const yesterdayDataCount = allData.filter((data) => {
-    const today = new Date();
-    const dataDate = new Date(data.Tarih);
-    return (
-      today.getDate() - dataDate.getDate() === 1 &&
-      today.getMonth() === dataDate.getMonth() &&
-      today.getFullYear() === dataDate.getFullYear()
-    );
-  }).length;
+  const yesterdayDataCount = Array.isArray(allData)
+    ? allData.filter((data) => {
+        const today = new Date();
+        const dataDate = new Date(data.Tarih);
+        return (
+          today.getDate() - dataDate.getDate() === 1 &&
+          today.getMonth() === dataDate.getMonth() &&
+          today.getFullYear() === dataDate.getFullYear()
+        );
+      }).length
+    : 0;
 
   // Düne göre artış veya azalış yüzdesi (NaN veya Infinity kontrolü)
   const yesterdayDataCountPercentage =
