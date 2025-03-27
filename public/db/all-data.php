@@ -29,11 +29,11 @@ try {
                 MAX(CASE WHEN v.key = 'surname' THEN v.value END) AS Soyad,
                 MAX(CASE WHEN v.key = 'email' THEN v.value END) AS Mail_Adresi,
                 MAX(CASE WHEN v.key = 'form_free_consultation_phone' THEN v.value END) AS Telefon,
-                MAX(CASE WHEN v.key = 'field_1440038' THEN v.value END) AS Eğitim_Durumu,
-                MAX(CASE WHEN v.key = 'field_cb9b32c' THEN v.value END) AS Üniversite,
-                MAX(CASE WHEN v.key = 'bolum' THEN v.value END) AS Bölüm,
-                MAX(CASE WHEN v.key = 'field_f622b9a' THEN v.value END) AS Sınıf,
-                MAX(CASE WHEN v.key = 'field_aecd304' THEN v.value END) AS Aldığı_Dersler,
+                MAX(CASE WHEN v.key = 'field_1440038' THEN v.value END) AS Egitim_Durumu,
+                MAX(CASE WHEN v.key = 'field_cb9b32c' THEN v.value END) AS Universite,
+                MAX(CASE WHEN v.key = 'bolum' THEN v.value END) AS Bolum,
+                MAX(CASE WHEN v.key = 'field_f622b9a' THEN v.value END) AS Sinif,
+                MAX(CASE WHEN v.key = 'field_aecd304' THEN v.value END) AS Aldigi_Dersler,
                 l.created_at AS Tarih
             FROM wpcs_e_submissions_values v
             JOIN wpcs_e_submissions_actions_log l ON v.submission_id = l.submission_id
@@ -42,7 +42,7 @@ try {
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    $data = $stmt->fetchAll();
+    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $cacheDir = dirname($cacheFile);
     if (!is_dir($cacheDir)) {
