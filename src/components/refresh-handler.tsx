@@ -9,7 +9,25 @@ import useSynchronousManager from "@/hooks/use-synchronous-manager";
 
 export default function RefreshHandler() {
   const [showAlert, setShowAlert] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   const { syncStatus } = useSynchronousManager();
+
+  useEffect(() => {
+    const navEntry = performance.getEntriesByType(
+      "navigation"
+    )[0] as PerformanceNavigationTiming;
+
+    if (navEntry?.type === "reload") {
+      // URL'ye refresh=true ekle
+      const url = new URL(window.location.href);
+      url.searchParams.set("refresh", "true");
+      window.history.replaceState({}, "", url.toString());
+
+      // Alert göster
+      setShowAlert(true);
+      setRefresh(true);
+    }
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,33 +94,41 @@ export default function RefreshHandler() {
                     {syncStatus === "error" &&
                       "Senkronizasyon sırasında bir hata oluştu."}
                     {syncStatus === "idle" &&
-                      "Senkronize etmeden verilerin güncellenmez, yine de sayfayı yenilemek istiyor musunuz?"}
+                      `Senkronize etmeden verilerin güncellenmez${
+                        !refresh
+                          ? ", yine de sayfayı yenilemek istiyor musunuz?"
+                          : ""
+                      }`}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-transparent border-white text-white hover:bg-white hover:text-red-500 transition-colors"
-                    onClick={() => {
-                      setShowAlert(false);
-                    }}
-                  >
-                    Hayır
-                  </Button>
+                  {!refresh && (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-transparent border-white text-white hover:bg-white hover:text-red-500 transition-colors"
+                        onClick={() => {
+                          setShowAlert(false);
+                        }}
+                      >
+                        Hayır
+                      </Button>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-white text-red-500 border-white hover:bg-red-50 transition-colors"
-                    onClick={() => {
-                      setShowAlert(false);
-                      window.location.reload();
-                    }}
-                  >
-                    Evet
-                  </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-white text-red-500 border-white hover:bg-red-50 transition-colors"
+                        onClick={() => {
+                          setShowAlert(false);
+                          window.location.reload();
+                        }}
+                      >
+                        Evet
+                      </Button>
+                    </>
+                  )}
 
                   <div>
                     <SyncButton
