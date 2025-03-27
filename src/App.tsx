@@ -8,6 +8,7 @@ import { RefreshCw } from "lucide-react";
 import DashboardAnalyticPage from "./pages/DashboardAnalyticPage";
 import SyncButton from "./components/SyncButton";
 import RefreshHandler from "./components/refresh-handler";
+import { toast } from "./hooks/use-toast";
 
 function App() {
   const { requestAllDataFromPhpAsync, loading } = useDataManager();

@@ -11,6 +11,7 @@ import { RootState } from "@/store";
 import { setAllData } from "@/store/data";
 import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "./use-toast";
 
 export default function useDataManager() {
   const [loading, setLoading] = useState(false);
@@ -100,12 +101,22 @@ export default function useDataManager() {
   const refreshAllDataAsync = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await httpClient.get<SubmissionData[]>(
+      const response = await httpClientPHP.get<SubmissionData[]>(
         "/all-data.php?refresh=1"
       );
+      if (response.data && "error" in response.data) {
+        throw new Error(response.data.error as string);
+      }
+      console.log("PHP API'den yenilendi:", response.data);
       dispatch(setAllData(response.data));
     } catch (error) {
       console.error("Yenileme hatası:", error);
+      // toast
+      toast({
+        variant: "destructive",
+        title: "Yenileme hatası",
+        description: "Veri yenileme işlemi sırasında bir hata oluştu.",
+      });
     } finally {
       setLoading(false);
     }
