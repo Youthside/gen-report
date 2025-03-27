@@ -13,6 +13,7 @@ import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "./use-toast";
 
+
 export default function useDataManager() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -111,6 +112,7 @@ export default function useDataManager() {
       dispatch(setAllData(response.data));
     } catch (error) {
       console.error("Yenileme hatası:", error);
+      console.log(error);
       // toast
       toast({
         variant: "destructive",
@@ -169,10 +171,21 @@ export default function useDataManager() {
       const response = await httpClientPHP.get<SubmissionData[]>(
         "/all-data.php"
       );
-      if (response.status === 200 && response.data) {
-        dispatch(setAllData(response.data));
+      if (response.status === 200) {
+        if (response.data && "error" in response.data) {
+          toast({
+            variant: "destructive",
+            title: "Veri Çekme Hatası",
+            description: response.data.error as string,
+          });
+          console.error("PHP API hata mesajı:", response.data.error);
+        } else if (response.data) {
+          dispatch(setAllData(response.data));
+        } else {
+          console.error("PHP API yanıtı boş veya geçersiz:", response);
+        }
       } else {
-        console.error("PHP API yanıtı boş veya geçersiz:", response);
+        console.error("PHP API yanıtı başarısız:", response);
       }
     } catch (error: any) {
       console.error(
