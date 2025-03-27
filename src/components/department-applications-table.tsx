@@ -65,9 +65,9 @@ export function DepartmentApplicationsTable({ data }: DepartmentApplicationsTabl
 
           return (
             <Badge variant={badgeVariant} className="font-medium">
-              {value.toLocaleString("tr-TR")}
+              {value ? value.toLocaleString("tr-TR") : "N/A"}
             </Badge>
-          )
+          );
         },
       },
     ],

@@ -1,25 +1,27 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, School } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { SummaryDataTable } from "@/components/summary-data-table"
-import { Badge } from "@/components/ui/badge"
+import { useMemo } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, School } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SummaryDataTable } from "@/components/summary-data-table";
+import { Badge } from "@/components/ui/badge";
 
 // Define the data type for school applications
-import { SummaryData } from "@/components/summary-data-table"
+import { SummaryData } from "@/components/summary-data-table";
 
 export interface SchoolApplicationData extends SummaryData {
-  okul: string
-  basvuru: number
+  okul: string;
+  basvuru: number;
 }
 
 interface SchoolApplicationsTableProps {
-  data: SchoolApplicationData[]
+  data: SchoolApplicationData[];
 }
 
-export function SchoolApplicationsTable({ data }: SchoolApplicationsTableProps) {
+export function SchoolApplicationsTable({
+  data,
+}: SchoolApplicationsTableProps) {
   // Define columns
   const columns = useMemo<ColumnDef<SchoolApplicationData>[]>(
     () => [
@@ -37,7 +39,9 @@ export function SchoolApplicationsTable({ data }: SchoolApplicationsTableProps) 
           </Button>
         ),
         accessorKey: "okul",
-        cell: ({ row }) => <div className="font-medium">{row.getValue("okul")}</div>,
+        cell: ({ row }) => (
+          <div className="font-medium">{row.getValue("okul")}</div>
+        ),
       },
       {
         id: "basvuru",
@@ -53,25 +57,29 @@ export function SchoolApplicationsTable({ data }: SchoolApplicationsTableProps) 
         ),
         accessorKey: "basvuru",
         cell: ({ row }) => {
-          const value = row.getValue("basvuru") as number
+          const value = row.getValue("basvuru") as number;
 
           // Determine badge color based on value range
-          let badgeVariant: "default" | "secondary" | "destructive" | "outline" = "outline"
+          let badgeVariant:
+            | "default"
+            | "secondary"
+            | "destructive"
+            | "outline" = "outline";
 
-          if (value > 5000) badgeVariant = "destructive"
-          else if (value > 2500) badgeVariant = "secondary"
-          else if (value > 1000) badgeVariant = "default"
+          if (value > 5000) badgeVariant = "destructive";
+          else if (value > 2500) badgeVariant = "secondary";
+          else if (value > 1000) badgeVariant = "default";
 
           return (
             <Badge variant={badgeVariant} className="font-medium">
-              {value.toLocaleString("tr-TR")}
+              {value ? value.toLocaleString("tr-TR") : "N/A"}
             </Badge>
-          )
+          );
         },
       },
     ],
-    [],
-  )
+    []
+  );
 
   return (
     <SummaryDataTable
@@ -82,6 +90,5 @@ export function SchoolApplicationsTable({ data }: SchoolApplicationsTableProps) 
       exportFileName="universite-basvurulari"
       valueLabel="üniversite"
     />
-  )
+  );
 }
-

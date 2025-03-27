@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import type { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, BookOpen } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { SummaryDataTable } from "@/components/summary-data-table"
-import { Badge } from "@/components/ui/badge"
+import { useMemo } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown, BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SummaryDataTable } from "@/components/summary-data-table";
+import { Badge } from "@/components/ui/badge";
 
 // Define the data type for Area applications
-import type { SummaryData } from "@/components/summary-data-table"
+import type { SummaryData } from "@/components/summary-data-table";
 
 export interface AreaApplicationData extends SummaryData {
-  bolum: string
-  basvuru: number
-  [key: string]: string | number // Add index signature to match SummaryData
+  bolum: string;
+  basvuru: number;
+  [key: string]: string | number; // Add index signature to match SummaryData
 }
 
 interface AreaApplicationsTableProps {
-  data: AreaApplicationData[]
+  data: AreaApplicationData[];
 }
 
 export function AreaApplicationsTable({ data }: AreaApplicationsTableProps) {
@@ -38,7 +38,9 @@ export function AreaApplicationsTable({ data }: AreaApplicationsTableProps) {
           </Button>
         ),
         accessorKey: "bolum",
-        cell: ({ row }) => <div className="font-medium">{row.getValue("bolum")}</div>,
+        cell: ({ row }) => (
+          <div className="font-medium">{row.getValue("bolum")}</div>
+        ),
       },
       {
         id: "basvuru",
@@ -54,25 +56,29 @@ export function AreaApplicationsTable({ data }: AreaApplicationsTableProps) {
         ),
         accessorKey: "basvuru",
         cell: ({ row }) => {
-          const value = row.getValue("basvuru") as number
+          const value = row.getValue("basvuru") as number | undefined;
 
           // Determine badge color based on value range
-          let badgeVariant: "default" | "secondary" | "outline" | "destructive" = "outline"
+          let badgeVariant:
+            | "default"
+            | "secondary"
+            | "outline"
+            | "destructive" = "outline";
 
-          if (value > 5000) badgeVariant = "destructive"
-          else if (value > 3000) badgeVariant = "secondary"
-          else if (value > 1000) badgeVariant = "default"
+          if (value && value > 5000) badgeVariant = "destructive";
+          else if (value && value > 3000) badgeVariant = "secondary";
+          else if (value && value > 1000) badgeVariant = "default";
 
           return (
             <Badge variant={badgeVariant} className="font-medium">
-              {value.toLocaleString("tr-TR")}
+              {value ? value.toLocaleString("tr-TR") : "N/A"}
             </Badge>
-          )
+          );
         },
       },
     ],
-    [],
-  )
+    []
+  );
 
   return (
     <SummaryDataTable
@@ -83,6 +89,5 @@ export function AreaApplicationsTable({ data }: AreaApplicationsTableProps) {
       exportFileName="bolum-basvurulari"
       valueLabel="bölüm"
     />
-  )
+  );
 }
-
