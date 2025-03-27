@@ -87,6 +87,7 @@ export default function RefreshHandler() {
 
                   <div>
                     <SyncButton 
+                    showInfoAlert={false}
                     className="bg-white text-red-500 border-white hover:bg-red-50 transition-colors"
                     showLastSyncTime={false}/>
                   </div>

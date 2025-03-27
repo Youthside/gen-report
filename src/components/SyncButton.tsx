@@ -27,11 +27,13 @@ interface ISyncButtonProps {
   showLastSyncTime?: boolean;
   className?: React.HTMLAttributes<HTMLDivElement>["className"];
   style?: React.HTMLAttributes<HTMLDivElement>["style"];
+  showInfoAlert?: boolean;
 }
 export default function SyncButton({
   showLastSyncTime = true,
   className,
   style,
+  showInfoAlert = true,
 }: ISyncButtonProps) {
   const { refreshAllDataAsync, loading, lastSenkronDateFromPhp } =
     useDataManager();
@@ -180,7 +182,7 @@ export default function SyncButton({
         </Button>
       </div>
 
-      {syncStatus === "syncing" && (
+      {syncStatus === "syncing" && showInfoAlert && (
         <Alert
           variant="default"
           className="bg-amber-50 border-amber-200 animate-pulse"
