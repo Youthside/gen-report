@@ -2,7 +2,13 @@
 
 import { useEffect, useState } from "react";
 import useDataManager, { type LastSyncData } from "@/hooks/use-data-manager";
-import { RefreshCw, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import {
+  RefreshCw,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -11,12 +17,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 
 export default function SyncButton() {
-  const { refreshAllDataFromPhpAsync, loading, lastSenkronDateFromPhp } =
+  const { refreshAllDataAsync, loading, lastSenkronDateFromPhp } =
     useDataManager();
   const [lastSyncTime, setLastSyncTime] = useState<LastSyncData | null>(null);
   const [syncStatus, setSyncStatus] = useState<
@@ -27,7 +34,7 @@ export default function SyncButton() {
   const handleSync = async () => {
     setSyncStatus("syncing");
     try {
-      await refreshAllDataFromPhpAsync();
+      await refreshAllDataAsync();
       setSyncStatus("success");
       setShowSuccessAnimation(true);
       setTimeout(() => {
@@ -115,56 +122,70 @@ export default function SyncButton() {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span className="whitespace-nowrap">Son Senkron:</span>
-              <Badge
-                variant="outline"
-                className={cn(
-                  "font-normal",
-                  lastSyncTime &&
-                    new Date(lastSyncTime.last_sync).getTime() >
-                      Date.now() - 10 * 60 * 1000
-                    ? "border-green-500 text-green-600"
-                    : "border-amber-500 text-amber-600"
-                )}
-              >
-                {formatSyncTime()}
-              </Badge>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Son veri senkronizasyonu zamanı</p>
-            {lastSyncTime && (
-              <p className="text-xs text-muted-foreground">
-                {format(
-                  new Date(lastSyncTime.last_sync),
-                  "dd MMMM yyyy HH:mm:ss",
-                  { locale: tr }
-                )}
-              </p>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span className="whitespace-nowrap">Son Senkron:</span>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "font-normal",
+                    lastSyncTime &&
+                      new Date(lastSyncTime.last_sync).getTime() >
+                        Date.now() - 10 * 60 * 1000
+                      ? "border-green-500 text-green-600"
+                      : "border-amber-500 text-amber-600"
+                  )}
+                >
+                  {formatSyncTime()}
+                </Badge>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Son veri senkronizasyonu zamanı</p>
+              {lastSyncTime && (
+                <p className="text-xs text-muted-foreground">
+                  {format(
+                    new Date(lastSyncTime.last_sync),
+                    "dd MMMM yyyy HH:mm:ss",
+                    { locale: tr }
+                  )}
+                </p>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-      <Button
-        onClick={handleSync}
-        disabled={loading || syncStatus === "syncing"}
-        className={cn(
-          "transition-all duration-300 shadow-md hover:shadow-lg",
-          buttonVariants[syncStatus],
-          showSuccessAnimation && "animate-pulse"
-        )}
-        size="sm"
-      >
-        {buttonIcons[syncStatus]}
-        {buttonText[syncStatus]}
-      </Button>
+        <Button
+          onClick={handleSync}
+          disabled={loading || syncStatus === "syncing"}
+          className={cn(
+            "transition-all duration-300 shadow-md hover:shadow-lg",
+            buttonVariants[syncStatus],
+            showSuccessAnimation && "animate-pulse"
+          )}
+          size="sm"
+        >
+          {buttonIcons[syncStatus]}
+          {buttonText[syncStatus]}
+        </Button>
+      </div>
+
+      {syncStatus === "syncing" && (
+        <Alert
+          variant="default"
+          className="bg-amber-50 border-amber-200 animate-pulse"
+        >
+          <AlertTriangle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-700 font-medium">
+            Tarayıcınızı kapatmayınız
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

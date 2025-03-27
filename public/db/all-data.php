@@ -9,7 +9,7 @@ require_once 'DbConnection.php';
 $cacheFile = __DIR__ . '/../cache/all-data.json';
 $refresh = isset($_GET['refresh']) ? $_GET['refresh'] : false;
 
-if (!$refresh && file_exists($cacheFile) && time() - filemtime($cacheFile) < 300) { // 5dk cache süresi
+if (!$refresh && file_exists($cacheFile)) { // 5dk cache süresi
     echo file_get_contents($cacheFile);
     exit;
 }
