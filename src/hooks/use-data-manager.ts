@@ -13,7 +13,6 @@ import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "./use-toast";
 
-
 export default function useDataManager() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -172,6 +171,8 @@ export default function useDataManager() {
         "/all-data.php"
       );
       if (response.status === 200) {
+        console.log("selam => ", response);
+
         if (response.data && "error" in response.data) {
           toast({
             variant: "destructive",
