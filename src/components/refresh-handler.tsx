@@ -35,6 +35,13 @@ export default function RefreshHandler() {
     }
   }, []);
 
+  const removeRefreshUrlParam = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("refresh");
+    window.history.replaceState({}, "", url.toString());
+    setRefresh(false);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -44,6 +51,7 @@ export default function RefreshHandler() {
       ) {
         e.preventDefault();
         setShowAlert(true);
+        removeRefreshUrlParam();
         return false;
       }
     };
