@@ -86,8 +86,10 @@ export default function SyncButton({
   }, []);
 
   const formatSyncTime = () => {
-    if (!lastSyncTime) return "Bilgi yok";
+    if (!lastSyncTime || !lastSyncTime.last_sync) return "Bilgi yok";
     const syncDate = new Date(lastSyncTime.last_sync);
+    if (isNaN(syncDate.getTime())) return "Geçersiz tarih";
+
     const now = new Date();
     const diffMinutes = Math.floor(
       (now.getTime() - syncDate.getTime()) / (1000 * 60)
@@ -153,7 +155,7 @@ export default function SyncButton({
             )}
             <TooltipContent>
               <p>Son veri senkronizasyonu zamanı</p>
-              {lastSyncTime && (
+              {lastSyncTime && lastSyncTime.last_sync && !isNaN(new Date(lastSyncTime.last_sync).getTime()) ? (
                 <p className="text-xs text-muted-foreground">
                   {format(
                     new Date(lastSyncTime.last_sync),
@@ -163,6 +165,8 @@ export default function SyncButton({
                     }
                   )}
                 </p>
+              ) : (
+                <p className="text-xs text-muted-foreground">Geçersiz tarih</p>
               )}
             </TooltipContent>
           </Tooltip>
