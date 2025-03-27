@@ -42,29 +42,34 @@ export default function useDataManager() {
   }, [dispatch]);
 
   // tüm veri sayısını hesapla
-  const allDataCount = allData.length;
 
   // BUGÜNKÜ BAŞVURU SAYISI
-  const todayDataCount = allData.filter((data) => {
-    const today = new Date();
-    const dataDate = new Date(data.Tarih);
-    return (
-      today.getDate() === dataDate.getDate() &&
-      today.getMonth() === dataDate.getMonth() &&
-      today.getFullYear() === dataDate.getFullYear()
-    );
-  }).length;
+  const allDataCount = Array.isArray(allData) ? allData.length : 0;
+
+  const todayDataCount = Array.isArray(allData)
+    ? allData.filter((data) => {
+        const today = new Date();
+        const dataDate = new Date(data.Tarih);
+        return (
+          today.getDate() === dataDate.getDate() &&
+          today.getMonth() === dataDate.getMonth() &&
+          today.getFullYear() === dataDate.getFullYear()
+        );
+      }).length
+    : 0;
 
   // HAFTALIK ORTALAMA BAŞVURU SAYISI
-  const weeklyDataCount = allData.filter((data) => {
-    const today = new Date();
-    const dataDate = new Date(data.Tarih);
-    return (
-      today.getDate() - dataDate.getDate() <= 7 &&
-      today.getMonth() === dataDate.getMonth() &&
-      today.getFullYear() === dataDate.getFullYear()
-    );
-  }).length;
+  const weeklyDataCount = Array.isArray(allData)
+    ? allData.filter((data) => {
+        const today = new Date();
+        const dataDate = new Date(data.Tarih);
+        return (
+          today.getDate() - dataDate.getDate() <= 7 &&
+          today.getMonth() === dataDate.getMonth() &&
+          today.getFullYear() === dataDate.getFullYear()
+        );
+      }).length
+    : 0;
 
   // DÜNKÜ BAŞVURU SAYISI
   const yesterdayDataCount = allData.filter((data) => {

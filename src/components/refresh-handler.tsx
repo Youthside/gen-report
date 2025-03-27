@@ -1,0 +1,123 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { RefreshCw, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import useDataManager from "@/hooks/use-data-manager";
+
+export default function RefreshHandler() {
+    const [showAlert, setShowAlert] = useState(false);
+    const { refreshAllDataAsync, loading } = useDataManager();
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (
+                e.key === "F5" ||
+                (e.ctrlKey && e.key === "r") ||
+                (e.metaKey && e.key === "r")
+            ) {
+                e.preventDefault();
+                setShowAlert(true);
+                return false;
+            }
+        };
+
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (!showAlert) {
+                setShowAlert(true);
+                e.preventDefault();
+                e.returnValue = "";
+                return "";
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [showAlert]);
+
+    const handleRefreshAllDataAsync = async () => {
+        try {
+            await refreshAllDataAsync();
+            setShowAlert(false);
+        } catch (error) {
+            console.error("Error refreshing data:", error);
+        }
+    };
+
+    return (
+        <AnimatePresence>
+            {showAlert && (
+                <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="fixed top-0 left-0 right-0 z-50 overflow-hidden"
+                >
+                    <div className="bg-red-500 text-white shadow-lg">
+                        <div className="container mx-auto px-4 py-3 relative">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                                <div className="flex items-center gap-2">
+                                    <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                                    <p className="text-white font-medium">
+                                        Senkronize etmeden verilerin güncellenmez, yine de sayfayı
+                                        yenilemek istiyor musunuz?
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-3 flex-shrink-0">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="bg-transparent border-white text-white hover:bg-white hover:text-red-500 transition-colors"
+                                        onClick={() => {
+                                            setShowAlert(false);
+                                        }}
+                                    >
+                                        Hayır
+                                    </Button>
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="bg-white text-red-500 border-white hover:bg-red-50 transition-colors"
+                                        onClick={() => {
+                                            setShowAlert(false);
+                                            window.location.reload();
+                                        }}
+                                    >
+                                        Evet
+                                    </Button>
+
+                                    <Button
+                                        variant="default"
+                                        size="sm"
+                                        className={`bg-white text-red-500 hover:bg-red-50 transition-colors flex items-center gap-1 ${
+                                            loading
+                                                ? "opacity-50 cursor-not-allowed"
+                                                : "transition-all duration-300 shadow-md hover:shadow-lg"
+                                        }`}
+                                        onClick={handleRefreshAllDataAsync}
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                            <RefreshCw className="h-3.5 w-3.5" />
+                                        )}
+                                        {loading ? "Yükleniyor..." : "Senkronize Et"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+}
