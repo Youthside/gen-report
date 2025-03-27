@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { AlertTriangle, Loader, CheckCircle, XCircle, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import SyncButton from "./SyncButton";
+import useSynchronousManager from "@/hooks/use-synchronous-manager";
 
 export default function RefreshHandler() {
   const [showAlert, setShowAlert] = useState(false);
+  const { syncStatus } = useSynchronousManager();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -54,10 +56,27 @@ export default function RefreshHandler() {
             <div className="container mx-auto px-4 py-3 relative">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+                  {syncStatus === "syncing" && (
+                    <Loader className="h-5 w-5 flex-shrink-0 animate-spin" />
+                  )}
+                  {syncStatus === "success" && (
+                    <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-400" />
+                  )}
+                  {syncStatus === "error" && (
+                    <XCircle className="h-5 w-5 flex-shrink-0 text-yellow-300" />
+                  )}
+                  {syncStatus === "idle" && (
+                    <RefreshCcw className="h-5 w-5 flex-shrink-0 text-white" />
+                  )}
                   <p className="text-white font-medium">
-                    Senkronize etmeden verilerin güncellenmez, yine de sayfayı
-                    yenilemek istiyor musunuz?
+                    {syncStatus === "syncing" &&
+                      "Veriler senkronize ediliyor..."}
+                    {syncStatus === "success" &&
+                      "Veriler başarıyla senkronize edildi."}
+                    {syncStatus === "error" &&
+                      "Senkronizasyon sırasında bir hata oluştu."}
+                    {syncStatus === "idle" &&
+                      "Senkronize etmeden verilerin güncellenmez, yine de sayfayı yenilemek istiyor musunuz?"}
                   </p>
                 </div>
 
