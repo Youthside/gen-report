@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { AlertTriangle, Loader, CheckCircle, XCircle, RefreshCcw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, Loader, CheckCircle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import SyncButton from "./SyncButton";
@@ -66,7 +66,7 @@ export default function RefreshHandler() {
                     <XCircle className="h-5 w-5 flex-shrink-0 text-yellow-300" />
                   )}
                   {syncStatus === "idle" && (
-                    <RefreshCcw className="h-5 w-5 flex-shrink-0 text-white" />
+                    <AlertTriangle className="h-5 w-5 flex-shrink-0 text-white" />
                   )}
                   <p className="text-white font-medium">
                     {syncStatus === "syncing" &&
