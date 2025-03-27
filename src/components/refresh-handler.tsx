@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertTriangle, Loader, CheckCircle, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader,
+  CheckCircle,
+  XCircle,
+  XCircleIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import SyncButton from "./SyncButton";
@@ -103,7 +109,7 @@ export default function RefreshHandler() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  {!refresh && (
+                  {!refresh ? (
                     <>
                       <Button
                         variant="outline"
@@ -128,6 +134,18 @@ export default function RefreshHandler() {
                         Evet
                       </Button>
                     </>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-white text-red-500 border-white hover:bg-red-50 transition-colors"
+                      onClick={() => {
+                        setShowAlert(false);
+                      }}
+                    >
+                      <XCircleIcon className="h-4 w-4 mr-2" />
+                      Kapat
+                    </Button>
                   )}
 
                   <div>
