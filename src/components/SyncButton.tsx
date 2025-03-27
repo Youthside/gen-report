@@ -28,12 +28,15 @@ interface ISyncButtonProps {
   className?: React.HTMLAttributes<HTMLDivElement>["className"];
   style?: React.HTMLAttributes<HTMLDivElement>["style"];
   showInfoAlert?: boolean;
+  onClick?: () => void;
 }
 export default function SyncButton({
   showLastSyncTime = true,
   className,
   style,
   showInfoAlert = true,
+  onClick,
+
 }: ISyncButtonProps) {
   const { refreshAllDataAsync, loading, lastSenkronDateFromPhp } =
     useDataManager();
@@ -48,6 +51,9 @@ export default function SyncButton({
   } = useSynchronousManager();
 
   const handleSync = async () => {
+    if (onClick) {
+      onClick();
+    }
     setSyncStatus("syncing");
     try {
       await refreshAllDataAsync();
