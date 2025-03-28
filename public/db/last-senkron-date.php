@@ -6,7 +6,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
 
-$cacheFile = __DIR__ . '/../cache/all-data.json';
+$cacheFile = __DIR__ . '/../cache/all-data.json.gz';
 
 if (file_exists($cacheFile)) {
     $lastModified = filemtime($cacheFile); // Son yazılma zamanı (timestamp)
