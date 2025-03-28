@@ -58,6 +58,7 @@ try {
     unset($data); // Belleği temizle
     file_put_contents($cacheFile, gzencode($jsonData, 9));
 
+    header('Content-Encoding: gzip');
     echo gzencode($jsonData, 9);
 
 } catch (PDOException $e) {

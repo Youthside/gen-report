@@ -101,18 +101,23 @@ export default function useDataManager() {
   const refreshAllDataAsync = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await httpClientPHP.get<SubmissionData[]>(
-        "/all-data.php?refresh=1"
-      );
-      if (response.data && "error" in response.data) {
-        throw new Error(response.data.error as string);
+      const response = await httpClientPHP.get<
+        SubmissionData[] | { error: string }
+      >("/all-data.php?refresh=1");
+
+      if (
+        typeof response.data === "object" &&
+        response.data !== null &&
+        !Array.isArray(response.data) &&
+        "error" in response.data
+      ) {
+        throw new Error((response.data as { error: string }).error);
       }
-      console.log("PHP API'den yenilendi:", response.data);
-      dispatch(setAllData(response.data));
-    } catch (error) {
-      console.error("Yenileme hatası:", error);
-      console.log(error);
-      // toast
+
+      dispatch(setAllData(response.data as SubmissionData[]));
+      console.log("✅ PHP Refresh Başarılı");
+    } catch (error: any) {
+      console.error("❌ PHP API yenileme hatası:", error?.message || error);
       toast({
         variant: "destructive",
         title: "Yenileme hatası",
