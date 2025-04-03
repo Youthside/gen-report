@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useDataManager from "@/hooks/use-data-manager";
 import {
   RefreshCw,
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 import useSynchronousManager from "@/hooks/use-synchronous-manager";
+import TopLoadingAlert from "./top-loading-alert";
 
 interface ISyncButtonProps {
   showLastSyncTime?: boolean;
@@ -36,7 +37,6 @@ export default function SyncButton({
   style,
   showInfoAlert = true,
   onClick,
-
 }: ISyncButtonProps) {
   const { refreshAllDataAsync, loading, lastSenkronDateFromPhp } =
     useDataManager();
@@ -49,24 +49,37 @@ export default function SyncButton({
     setSyncStatus,
     setShowSuccessAnimation,
   } = useSynchronousManager();
-
+  const [showTopAlert, setShowTopAlert] = useState(false);
+  const [loadingValue, setLoadingValue] = useState(0);
   const handleSync = async () => {
     if (onClick) {
       onClick();
     }
     setSyncStatus("syncing");
+    setShowTopAlert(true); // başlarken göster
+
     try {
       await refreshAllDataAsync();
-      setSyncStatus("success");
-      setShowSuccessAnimation(true);
+      setLoadingValue(100); // senkronizasyon tamamlandığında %100 yap
+
+      // başarı durumunda göstermek ve 1 saniye sonra kapatmak için
       setTimeout(() => {
-        setShowSuccessAnimation(false);
-        setSyncStatus("idle");
-      }, 3000);
+        setSyncStatus("success");
+        setShowSuccessAnimation(true);
+        setShowTopAlert(true); // yine göster
+        setTimeout(() => {
+          setShowTopAlert(false); // 1 saniye sonra gizle
+          setShowSuccessAnimation(false);
+          setSyncStatus("idle");
+        }, 1000);
+      }, 500);
+
       await handleLastSync();
     } catch (error) {
       setSyncStatus("error");
+      setShowTopAlert(true); // hata durumunda da göster
       setTimeout(() => {
+        setShowTopAlert(false); // sonra kapat
         setSyncStatus("idle");
       }, 3000);
     }
@@ -155,7 +168,9 @@ export default function SyncButton({
             )}
             <TooltipContent>
               <p>Son veri senkronizasyonu zamanı</p>
-              {lastSyncTime && lastSyncTime.last_sync && !isNaN(new Date(lastSyncTime.last_sync).getTime()) ? (
+              {lastSyncTime &&
+              lastSyncTime.last_sync &&
+              !isNaN(new Date(lastSyncTime.last_sync).getTime()) ? (
                 <p className="text-xs text-muted-foreground">
                   {format(
                     new Date(lastSyncTime.last_sync),
@@ -192,16 +207,8 @@ export default function SyncButton({
         </Button>
       </div>
 
-      {syncStatus === "syncing" && showInfoAlert && (
-        <Alert
-          variant="default"
-          className="bg-amber-50 border-amber-200 animate-pulse"
-        >
-          <AlertTriangle className="h-4 w-4 text-amber-600" />
-          <AlertDescription className="text-amber-700 font-medium">
-            Tarayıcınızı kapatmayınız
-          </AlertDescription>
-        </Alert>
+      {showTopAlert && showInfoAlert && (
+        <TopLoadingAlert value={loadingValue} />
       )}
     </div>
   );
