@@ -9,14 +9,17 @@ import { httpClient } from "@/plugins/http-client-flask";
 import { httpClientPHP } from "@/plugins/http-client-php";
 import { RootState } from "@/store";
 import { setAllData } from "@/store/data";
+import { setExam } from "@/store/exam";
 import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "./use-toast";
+import { Exam } from "@/models/Exam";
 
 export default function useDataManager() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const { allData } = useSelector((state: RootState) => state.data);
+  const { exam } = useSelector((state: RootState) => state.exam);
   const requestAllDataAsync = useCallback(async () => {
     setLoading(true);
     try {
@@ -238,6 +241,22 @@ export default function useDataManager() {
     }
   };
 
+  const examFetchAllData = async () => {
+    try {
+      setLoading(true);
+      const response = await httpClientPHP.get<Exam[]>("/exam-all.php");
+
+      dispatch(setExam(response.data));
+      console.log("Exam verileri başarıyla alındı:", response.data);
+      setLoading(false);
+      return response.data || null;
+    } catch (error) {
+      console.log("PHP Son senkronizasyon tarihi alınamadı:", error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
   return {
     allData,
     requestAllDataAsync,
@@ -256,5 +275,7 @@ export default function useDataManager() {
     refreshAllDataFromPhpAsync,
     lastSenkronDateFromPhp,
     loading,
+    examFetchAllData,
+    examAllData: exam,
   };
 }

@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import DashboardAnalyticPage from "./pages/DashboardAnalyticPage";
 import SyncButton from "./components/SyncButton";
 import EnhancedLoading from "./components/loading-experience";
+import ExamInfoPage from "./pages/ExamInfoPage";
 
 function App() {
   const { requestAllDataFromPhpAsync, loading } = useDataManager();
@@ -37,6 +38,7 @@ function App() {
               path="/gosterge-paneli-analiz"
               element={<DashboardAnalyticPage />}
             />
+            <Route path="/sinav-bilgileri" element={<ExamInfoPage />} />
           </Routes>
         </div>
       </div>
