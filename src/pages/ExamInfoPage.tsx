@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   getFilteredRowModel,
   flexRender,
   type SortingState,
@@ -25,16 +24,15 @@ import {
 import { utils, writeFile } from "xlsx";
 import { Exam } from "@/models/Exam";
 import useDataManager from "@/hooks/use-data-manager";
-import TopLoadingAlert from "@/components/top-loading-alert";
-import EnhancedLoading from "@/components/loading-experience";
-import LoadingPage from "@/components/loading-page";
 
 export default function ExamInfoPage() {
   const { examFetchAllData, loading, examAllData } = useDataManager();
 
   useEffect(() => {
-    examFetchAllData();
-  }, []);
+    if (examAllData.length === 0) {
+      examFetchAllData();
+    }
+  }, [examAllData]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState<string>("");
