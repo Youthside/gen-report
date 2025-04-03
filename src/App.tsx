@@ -33,7 +33,7 @@ function App() {
       <div className="flex md:grid md:grid-cols-[250px_auto] h-screen">
         <Sidebar className="hidden md:block" />
         <div className="flex-grow overflow-auto p-4 mt-20 md:mt-10">
-          <RefreshHandler />
+          {/* <RefreshHandler /> */}
           <div className="flex items-center justify-end p-4 border-b border-gray-100">
             <SyncButton />
           </div>
