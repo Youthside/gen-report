@@ -11,21 +11,25 @@ header('Content-Type: application/json');
 
 require_once 'DbConnection.php';
 
-function getCacheFilePath() {
+function getCacheFilePath()
+{
     return __DIR__ . '/../cache/all-data.json.gz';
 }
 
-function isCacheValid(string $cacheFile, int $ttlSeconds = 900): bool {
+function isCacheValid(string $cacheFile, int $ttlSeconds = 900): bool
+{
     return file_exists($cacheFile) && (time() - filemtime($cacheFile) < $ttlSeconds);
 }
 
-function outputCachedData(string $cacheFile) {
+function outputCachedData(string $cacheFile)
+{
     header('Content-Encoding: gzip');
     readfile($cacheFile);
     exit;
 }
 
-function fetchSubmissionData(PDO $pdo): iterable {
+function fetchSubmissionData(PDO $pdo): iterable
+{
     $sql = "SELECT 
                 v.submission_id, v.key, v.value, l.created_at
             FROM wpcs_e_submissions_values v
@@ -52,7 +56,8 @@ function fetchSubmissionData(PDO $pdo): iterable {
     }
 }
 
-function streamJson(iterable $rows) {
+function streamJson(iterable $rows)
+{
     header('Content-Type: application/json');
     header('Transfer-Encoding: chunked');
     header('Cache-Control: no-cache');
@@ -94,7 +99,8 @@ function streamJson(iterable $rows) {
                 $first = false;
             }
             $buffer = [];
-            ob_flush(); flush();
+            ob_flush();
+            flush();
         }
     }
 
@@ -108,13 +114,15 @@ function streamJson(iterable $rows) {
     exit; // 🔥 Bu önemli! Yoksa PHP kapanana kadar veri gönderilmez
 }
 
-function main() {
+function main()
+{
     $refresh = isset($_GET['refresh']);
     $cacheFile = getCacheFilePath();
 
-    if (!$refresh && isCacheValid($cacheFile)) {
-        outputCachedData($cacheFile);
-    }
+    // BU SATIRI GEÇİCİ OLARAK YORUM SATIRINA AL
+    // if (!$refresh && isCacheValid($cacheFile)) {
+    //     outputCachedData($cacheFile);
+    // }
 
     header('Content-Type: application/json');
     header('Content-Encoding: gzip');

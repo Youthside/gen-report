@@ -1,0 +1,9 @@
+AuthType Basic
+AuthName "GEN Academy Panel"
+AuthUserFile "/home/youthsid/.htpasswds/genacademy.co/report/passwd"
+Require valid-user
+
+<FilesMatch "(all-data.php|last-senkron-date.php|report.php|db.php|test.php|DbConnection.php|connection.php)">
+    Satisfy Any
+    Allow from all
+</FilesMatch>
