@@ -4,7 +4,8 @@ class DbConnection
     private static $instance = null;
     private $conn;
     
-    private $host = "5.2.85.141";
+    private $host = "46.20.156.139";
+    
     private $db_name = "youthsid_wp462";
     private $username = "youthsid_wp462";
     private $password = "9)[NSp95Zx";
