@@ -20,10 +20,14 @@ import {
   ChevronsRight,
   Search,
   Download,
+  RefreshCw,
 } from "lucide-react";
 import { utils, writeFile } from "xlsx";
 import { Exam } from "@/models/Exam";
 import useDataManager from "@/hooks/use-data-manager";
+import TopLoadingAlert from "@/components/top-loading-alert";
+import EnhancedLoading from "@/components/loading-experience";
+import LoadingPage from "@/components/loading-page";
 
 export default function ExamInfoPage() {
   const { examFetchAllData, loading, examAllData } = useDataManager();
@@ -119,11 +123,14 @@ export default function ExamInfoPage() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  if (loading && !examAllData) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="loader"></div>
-      </div>
+      <>
+        <div className="flex flex-col justify-center items-center h-screen">
+          <RefreshCw className="h-10 w-10 text-primary-500 animate-spin mb-4" />
+          <span>Tüm veriler yükleniyor...</span>
+        </div>
+      </>
     );
   }
 
