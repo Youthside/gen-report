@@ -1,5 +1,5 @@
 <?php
-// tüm hataları göster
+ini_set('memory_limit', '1024M'); // Bellek limiti 1GB
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -11,58 +11,158 @@ header('Content-Type: application/json');
 
 require_once 'DbConnection.php';
 
-$cacheFile = __DIR__ . '/../cache/all-data.json.gz';
-$refresh = isset($_GET['refresh']) ? $_GET['refresh'] : false;
+function getCacheFilePath() {
+    return __DIR__ . '/../cache/all-data.json.gz';
+}
 
-if (!$refresh && file_exists($cacheFile)) { // 5dk cache süresi
+function isCacheValid(string $cacheFile, int $ttlSeconds = 300): bool {
+    return file_exists($cacheFile) && (time() - filemtime($cacheFile) < $ttlSeconds);
+}
+
+function outputCachedData(string $cacheFile) {
     header('Content-Encoding: gzip');
     readfile($cacheFile);
     exit;
 }
 
-try {
-    $pdo = DbConnection::getInstance()->getConnection();
-
+function fetchSubmissionData(PDO $pdo): iterable {
     $sql = "SELECT 
-                v.submission_id,
-                MAX(CASE WHEN v.key = 'name' THEN v.value END) AS Ad,
-                MAX(CASE WHEN v.key = 'surname' THEN v.value END) AS Soyad,
-                MAX(CASE WHEN v.key = 'email' THEN v.value END) AS Mail_Adresi,
-                MAX(CASE WHEN v.key = 'form_free_consultation_phone' THEN v.value END) AS Telefon,
-                MAX(CASE WHEN v.key = 'field_1440038' THEN v.value END) AS Egitim_Durumu,
-                MAX(CASE WHEN v.key = 'field_cb9b32c' THEN v.value END) AS Universite,
-                MAX(CASE WHEN v.key = 'bolum' THEN v.value END) AS Bolum,
-                MAX(CASE WHEN v.key = 'field_f622b9a' THEN v.value END) AS Sinif,
-                MAX(CASE WHEN v.key = 'field_aecd304' THEN v.value END) AS Aldigi_Dersler,
-                l.created_at AS Tarih
+                v.submission_id, v.key, v.value, l.created_at
             FROM wpcs_e_submissions_values v
-            JOIN wpcs_e_submissions_actions_log l ON v.submission_id = l.submission_id
-            GROUP BY v.submission_id
+            JOIN wpcs_e_submissions_actions_log l 
+                ON v.submission_id = l.submission_id
+            WHERE v.key IN (
+                'name',
+                'surname',
+                'email',
+                'form_free_consultation_phone',
+                'field_1440038',
+                'field_cb9b32c',
+                'bolum',
+                'field_f622b9a',
+                'field_aecd304'
+            )
             ORDER BY l.created_at DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $cacheDir = dirname($cacheFile);
-    if (!is_dir($cacheDir)) {
-        mkdir($cacheDir, 0777, true);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        yield $row;
     }
-
-    if (!file_exists($cacheFile)) {
-        touch($cacheFile);
-        chmod($cacheFile, 0777);
-    }
-
-    $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-    unset($data); // Belleği temizle
-    file_put_contents($cacheFile, gzencode($jsonData, 9));
-
-    header('Content-Encoding: gzip');
-    echo gzencode($jsonData, 9);
-
-} catch (PDOException $e) {
-    echo json_encode(["error" => "Veritabanı hatası: " . $e->getMessage()]);
-} finally {
-    DbConnection::destroy();
 }
+
+function streamJson(iterable $rows) {
+    header('Content-Type: application/json');
+    header('Transfer-Encoding: chunked');
+    header('Cache-Control: no-cache');
+
+    echo "[";
+    $first = true;
+
+    $buffer = [];
+
+    $columnMap = [
+        'name' => 'Ad',
+        'surname' => 'Soyad',
+        'email' => 'Mail_Adresi',
+        'form_free_consultation_phone' => 'Telefon',
+        'field_1440038' => 'Egitim_Durumu',
+        'field_cb9b32c' => 'Universite',
+        'bolum' => 'Bolum',
+        'field_f622b9a' => 'Sinif',
+        'field_aecd304' => 'Aldigi_Dersler',
+    ];
+
+    foreach ($rows as $row) {
+        $id = $row['submission_id'];
+        $key = $row['key'];
+        $value = $row['value'];
+
+        if (!isset($buffer[$id])) {
+            $buffer[$id] = ['ID' => $id];
+        }
+
+        if (isset($columnMap[$key])) {
+            $buffer[$id][$columnMap[$key]] = $value;
+        }
+
+        if (count($buffer) > 5000) {
+            foreach ($buffer as $submission) {
+                if (!$first) echo ",";
+                echo json_encode($submission, JSON_UNESCAPED_UNICODE);
+                $first = false;
+            }
+            $buffer = [];
+            ob_flush(); flush();
+        }
+    }
+
+    foreach ($buffer as $submission) {
+        if (!$first) echo ",";
+        echo json_encode($submission, JSON_UNESCAPED_UNICODE);
+        $first = false;
+    }
+
+    echo "]";
+    exit; // 🔥 Bu önemli! Yoksa PHP kapanana kadar veri gönderilmez
+}
+
+function main() {
+    $refresh = isset($_GET['refresh']);
+    $cacheFile = getCacheFilePath();
+
+    if (!$refresh && isCacheValid($cacheFile)) {
+        outputCachedData($cacheFile);
+    }
+
+    header('Content-Type: application/json');
+    header('Content-Encoding: gzip');
+
+    try {
+        while (ob_get_level() > 0) ob_end_clean();
+        $pdo = DbConnection::getInstance()->getConnection();
+        $rows = iterator_to_array(fetchSubmissionData($pdo));
+
+        $columnMap = [
+            'name' => 'Ad',
+            'surname' => 'Soyad',
+            'email' => 'Mail_Adresi',
+            'form_free_consultation_phone' => 'Telefon',
+            'field_1440038' => 'Egitim_Durumu',
+            'field_cb9b32c' => 'Universite',
+            'bolum' => 'Bolum',
+            'field_f622b9a' => 'Sinif',
+            'field_aecd304' => 'Aldigi_Dersler',
+        ];
+
+        $submissions = [];
+
+        foreach ($rows as $row) {
+            $id = $row['submission_id'];
+            $key = $row['key'];
+            $value = $row['value'];
+
+            if (!isset($columnMap[$key])) continue;
+
+            if (!isset($submissions[$id])) {
+                $submissions[$id] = [
+                    'ID' => $id,
+                    'Tarih' => $row['created_at'],
+                ];
+            }
+
+            $submissions[$id][$columnMap[$key]] = $value;
+        }
+
+        $json = json_encode(array_values($submissions), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        file_put_contents($cacheFile, gzencode($json, 9));
+        echo gzencode($json, 9);
+    } catch (PDOException $e) {
+        echo gzencode(json_encode(["error" => $e->getMessage()]), 9);
+    } finally {
+        DbConnection::destroy();
+    }
+}
+
+main();
