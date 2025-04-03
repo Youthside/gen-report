@@ -147,7 +147,7 @@ function main() {
 
             if (!isset($submissions[$id])) {
                 $submissions[$id] = [
-                    'ID' => $id,
+                    'submission_id' => $id,
                     'Tarih' => $row['created_at'],
                 ];
             }
