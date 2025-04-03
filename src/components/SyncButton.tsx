@@ -134,8 +134,8 @@ export default function SyncButton({
   };
 
   const buttonText = {
-    idle: "Senkronize Et",
-    syncing: "Senkronize Ediliyor...",
+    idle: "Tüm Başvuruları Senkronize Et",
+    syncing: "Tüm Başvurular Senkronize Ediliyor...",
     success: "Senkronizasyon Başarılı",
     error: "Senkronizasyon Hatası",
   };
