@@ -13,7 +13,7 @@ import ExamInfoPage from "./pages/ExamInfoPage";
 import GeminiAnalyzer from "./pages/TestPage";
 
 function App() {
-  const { requestAllDataFromPhpAsync, loading } = useDataManager();
+  const { requestAllDataFromPhpAsync, allData, loading } = useDataManager();
 
   useEffect(() => {
     requestAllDataFromPhpAsync();
@@ -41,26 +41,7 @@ function App() {
             />
             <Route
               path="/test"
-              element={
-                <GeminiAnalyzer
-                  submissions={[
-                    {
-                      submission_id: "138168",
-                      Ad: "Uğur",
-                      Soyad: "Arif",
-                      Mail_Adresi: "ugurarif1517@gmail.com",
-                      Telefon: "5516335485",
-                      Egitim_Durumu: "Lise Öğrencisi",
-                      Universite: "Diğer",
-                      Bolum: "Acil Yardım ve Afet Yönetimi",
-                      Sinif: "3.Sınıf",
-                      Aldigi_Dersler:
-                        "Yazılım Teknolojileri ve Yapay Zeka, Satış ve 4 daha...",
-                      Tarih: "04.04.2025 02:57",
-                    },
-                  ]}
-                />
-              }
+              element={<GeminiAnalyzer submissions={allData.slice(0,2)} />}
             />
             <Route path="/sinav-bilgileri" element={<ExamInfoPage />} />
           </Routes>
