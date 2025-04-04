@@ -218,9 +218,9 @@ export default function GeminiAnalyzer({
         .toLowerCase()
         .includes(searchLower);
       const universityMatches =
-        submission.Universite.toLowerCase().includes(searchLower);
+        submission.Universite?.toLowerCase().includes(searchLower);
       const departmentMatches =
-        submission.Bolum.toLowerCase().includes(searchLower);
+        submission.Bolum?.toLowerCase().includes(searchLower);
       const searchMatches =
         nameMatches || universityMatches || departmentMatches;
       if (filterOptions.searchTerm && !searchMatches) return false;
