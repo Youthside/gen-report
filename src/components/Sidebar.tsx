@@ -8,6 +8,7 @@ import {
   House,
   ArrowUpNarrowWide,
   BookOpenCheck,
+  Aperture,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -56,13 +57,10 @@ interface SidebarContentProps {
 
 const menuItems = [
   { text: "Ana Sayfa", icon: <House />, path: "/" },
-  { text: "Tüm Veriler", icon: <FileText />, path: "/tum-veriler" },
-  {
-    text: "Gösterge Paneli Analiz",
-    icon: <ArrowUpNarrowWide />,
-    path: "/gosterge-paneli-analiz",
-  },
-  { text: "Sınav Bilgileri", icon: <BookOpenCheck />, path: "/sinav-bilgileri" },
+  { text: "Veriler", icon: <FileText />, path: "/tum-veriler" },
+  { text: "Analiz", icon: <ArrowUpNarrowWide />, path: "/gosterge-paneli-analiz" },
+  { text: "Sınavlar", icon: <BookOpenCheck />, path: "/sinav-bilgileri" },
+  { text: "Satışa Dönüşüm", icon: <Aperture />, path: "/test" },
 ];
 //@ts-ignore
 const SidebarContent: React.FC<SidebarContentProps> = ({ onItemClick }) => {

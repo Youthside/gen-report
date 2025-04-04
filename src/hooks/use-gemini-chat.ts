@@ -1,9 +1,10 @@
-// src/hooks/useGeminiChat.ts
+"use client";
+
+// hooks/use-gemini-chat.ts
 import { useState } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const MODEL_NAME = "gemini-2.5-pro-exp-03-25";
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; // Vite için örnek .env
 
 const generationConfig = {
   temperature: 1,
@@ -13,16 +14,61 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
-export function useGeminiChat() {
+// Default system prompt for analyzing potential buyers
+const DEFAULT_SYSTEM_PROMPT = `
+## 📄 Modelfile.md – Potansiyel Satın Alıcı Analizcisi
+
+Sen bir eğitim platformu için potansiyel müşterileri analiz eden bir yapay zeka asistanısın.
+Sana verilen öğrenci bilgilerini analiz ederek, bu kişinin ödeme yapma olasılığını ve dönüşüm skorunu değerlendirmelisin.
+
+### Çıktı Formatı
+Yanıtını her zaman aşağıdaki JSON formatında vermelisin:
+
+\`\`\`json
+{
+  "payment_possibility": "yüksek|orta|düşük",
+  "justification": "Değerlendirmenin detaylı açıklaması",
+  "buyer_persona": "Alıcı profili kategorisi",
+  "conversion_score": 0-100 arası sayısal değer,
+  "recommended_strategy": "Önerilen pazarlama stratejisi",
+  "next_action": "kampanya maili|telefon araması|özel teklif"
+}
+\`\`\`
+
+### Değerlendirme Kriterleri
+- Eğitim seviyesi ve bölümü
+- Seçtiği dersler ve ilgi alanları
+- Üniversite ve sınıf bilgisi
+- Diğer demografik bilgiler
+
+### Alıcı Profilleri
+- "kariyer odaklı öğrenci": Kariyerinde ilerlemek için eğitim alan kişiler
+- "akademik odaklı öğrenci": Akademik başarıya odaklanan kişiler
+- "hobi amaçlı öğrenci": Kişisel ilgi alanları için eğitim alan kişiler
+- "zorunlu eğitim alan": Bir gereklilik nedeniyle eğitim alan kişiler
+
+### Dönüşüm Skoru
+0-100 arasında, kişinin ödeme yapma olasılığını gösteren bir skor:
+- 70-100: Yüksek olasılık
+- 40-69: Orta olasılık
+- 0-39: Düşük olasılık
+`;
+
+export function useGeminiChat(systemPrompt = DEFAULT_SYSTEM_PROMPT) {
   const [response, setResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
 
-  const sendMessage = async (userMessage: string) => {
+  const sendMessage = async (userMessage: string): Promise<string> => {
     setLoading(true);
     setError(null);
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Gemini API anahtarı bulunamadı");
+      }
+
+      const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: MODEL_NAME });
 
       const chat = model.startChat({
@@ -151,14 +197,21 @@ export function useGeminiChat() {
         ],
       });
 
+      console.log("Sending message to Gemini:", userMessage);
       const result = await chat.sendMessage(userMessage);
-      const text = result.response
-        .text()
-        .match(/```json\n([\s\S]*?)\n```/);
-      setResponse(text ? text[1] : null);
+      const text = result.response.text();
+      console.log("Received response from Gemini:", text);
+
+      // Extract JSON from the response if it exists
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
+      const parsedResponse = jsonMatch ? jsonMatch[1] : text;
+      setResponse(parsedResponse);
+
+      return parsedResponse;
     } catch (err: any) {
       console.error("Gemini chat error:", err);
-      setError("Bir hata oluştu.");
+      setError(err.message || "Bir hata oluştu.");
+      throw err;
     } finally {
       setLoading(false);
     }

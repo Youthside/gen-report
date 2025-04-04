@@ -41,7 +41,7 @@ function App() {
             />
             <Route
               path="/test"
-              element={<GeminiAnalyzer submissions={allData.slice(0,2)} />}
+              element={<>Ferhat</>}
             />
             <Route path="/sinav-bilgileri" element={<ExamInfoPage />} />
           </Routes>
