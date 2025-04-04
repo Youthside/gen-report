@@ -10,6 +10,7 @@ import DashboardAnalyticPage from "./pages/DashboardAnalyticPage";
 import SyncButton from "./components/SyncButton";
 import EnhancedLoading from "./components/loading-experience";
 import ExamInfoPage from "./pages/ExamInfoPage";
+import GeminiExample from "./pages/TestPage";
 
 function App() {
   const { requestAllDataFromPhpAsync, loading } = useDataManager();
@@ -37,6 +38,10 @@ function App() {
             <Route
               path="/gosterge-paneli-analiz"
               element={<DashboardAnalyticPage />}
+            />
+            <Route
+              path="/test"
+              element={<GeminiExample />}
             />
             <Route path="/sinav-bilgileri" element={<ExamInfoPage />} />
           </Routes>

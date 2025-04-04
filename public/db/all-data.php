@@ -16,7 +16,7 @@ function getCacheFilePath()
     return __DIR__ . '/../cache/all-data.json.gz';
 }
 
-function isCacheValid(string $cacheFile, int $ttlSeconds = 900): bool
+function isCacheValid(string $cacheFile, int $ttlSeconds = 900 * 10): bool
 {
     return file_exists($cacheFile) && (time() - filemtime($cacheFile) < $ttlSeconds);
 }

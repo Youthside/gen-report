@@ -1,38 +1,42 @@
-import useQueryData from "@/hooks/use-query-data";
+import { useGeminiChat } from "@/hooks/use-gemini-chat";
 
-const queries = [
-  "getFullDataCount",
-  "getTodayDataCount",
-  "getYesterdayDataCount",
-  "getWeeklyAverageDataCount",
-  "getLastWeekAverageDataCount",
-  "getDailyDifference",
-  "getWeeklyDifference"
-];
+export default function GeminiExample() {
+  const { sendMessage, response, loading, error } = useGeminiChat(`
+## 📄 Modelfile.md – Potansiyel Satın Alıcı Analizcisi
+... (diğer prompt kurallarını buraya yapıştırabilirsin)
+  `);
 
-const APIDataFetcher = () => {
+  const handleAnalyze = () => {
+    const input = `
+Ad: Halil Murat Yıldız
+Eğitim Durumu: Lisans Öğrencisi
+Üniversite: Trakya Üniversitesi
+Bölüm: İşletme
+Sınıf: 2. Sınıf
+Seçtiği Dersler: Satış, Pazarlama ve Marka Yaratma
+Şehir: Edirne
+Mail: halilmurat97@gmail.com
+    `;
+    sendMessage(input);
+  };
+
   return (
-    <div>
-      <h2>API Verileri</h2>
-      {queries.map((query) => {
-        const { data, loading, error, refetch } = useQueryData<any>({
-          endpoint: `/report.php?query=${query}`,
-        });
+    <div className="p-4 space-y-4">
+      <button
+        onClick={handleAnalyze}
+        disabled={loading}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Analiz Et
+      </button>
 
-        return (
-          <div key={query} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "10px" }}>
-            <h3>{query}</h3>
-            {loading && <p>Veri yükleniyor...</p>}
-            {error && <p>Hata oluştu: {error}</p>}
-            {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
-            <button onClick={refetch}>Tekrar Getir</button>
-          </div>
-        );
-      })}
+      {loading && <p>İşleniyor...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {response && (
+        <pre className="bg-gray-100 p-4 rounded overflow-auto whitespace-pre-wrap">
+          {response}
+        </pre>
+      )}
     </div>
   );
-};
-
-export default APIDataFetcher;
-
-
+}
