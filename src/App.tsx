@@ -10,7 +10,7 @@ import DashboardAnalyticPage from "./pages/DashboardAnalyticPage";
 import SyncButton from "./components/SyncButton";
 import EnhancedLoading from "./components/loading-experience";
 import ExamInfoPage from "./pages/ExamInfoPage";
-import GeminiExample from "./pages/TestPage";
+import GeminiAnalyzer from "./pages/TestPage";
 
 function App() {
   const { requestAllDataFromPhpAsync, loading } = useDataManager();
@@ -41,7 +41,26 @@ function App() {
             />
             <Route
               path="/test"
-              element={<GeminiExample />}
+              element={
+                <GeminiAnalyzer
+                  submissions={[
+                    {
+                      submission_id: "138168",
+                      Ad: "Uğur",
+                      Soyad: "Arif",
+                      Mail_Adresi: "ugurarif1517@gmail.com",
+                      Telefon: "5516335485",
+                      Egitim_Durumu: "Lise Öğrencisi",
+                      Universite: "Diğer",
+                      Bolum: "Acil Yardım ve Afet Yönetimi",
+                      Sinif: "3.Sınıf",
+                      Aldigi_Dersler:
+                        "Yazılım Teknolojileri ve Yapay Zeka, Satış ve 4 daha...",
+                      Tarih: "04.04.2025 02:57",
+                    },
+                  ]}
+                />
+              }
             />
             <Route path="/sinav-bilgileri" element={<ExamInfoPage />} />
           </Routes>

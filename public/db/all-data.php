@@ -16,7 +16,7 @@ function getCacheFilePath()
     return __DIR__ . '/../cache/all-data.json.gz';
 }
 
-function isCacheValid(string $cacheFile, int $ttlSeconds = 900 * 10): bool
+function isCacheValid(string $cacheFile, int $ttlSeconds = 900 * 1000): bool
 {
     return file_exists($cacheFile) && (time() - filemtime($cacheFile) < $ttlSeconds);
 }
@@ -119,58 +119,57 @@ function main()
     $refresh = isset($_GET['refresh']);
     $cacheFile = getCacheFilePath();
 
-    // BU SATIRI GEÇİCİ OLARAK YORUM SATIRINA AL
-    // if (!$refresh && isCacheValid($cacheFile)) {
-    //     outputCachedData($cacheFile);
-    // }
-
-    header('Content-Type: application/json');
-    header('Content-Encoding: gzip');
-
-    try {
-        while (ob_get_level() > 0) ob_end_clean();
-        $pdo = DbConnection::getInstance()->getConnection();
-        $rows = iterator_to_array(fetchSubmissionData($pdo));
-
-        $columnMap = [
-            'name' => 'Ad',
-            'surname' => 'Soyad',
-            'email' => 'Mail_Adresi',
-            'form_free_consultation_phone' => 'Telefon',
-            'field_1440038' => 'Egitim_Durumu',
-            'field_cb9b32c' => 'Universite',
-            'bolum' => 'Bolum',
-            'field_f622b9a' => 'Sinif',
-            'field_aecd304' => 'Aldigi_Dersler',
-        ];
-
-        $submissions = [];
-
-        foreach ($rows as $row) {
-            $id = $row['submission_id'];
-            $key = $row['key'];
-            $value = $row['value'];
-
-            if (!isset($columnMap[$key])) continue;
-
-            if (!isset($submissions[$id])) {
-                $submissions[$id] = [
-                    'submission_id' => $id,
-                    'Tarih' => $row['created_at'],
-                ];
-            }
-
-            $submissions[$id][$columnMap[$key]] = $value;
-        }
-
-        $json = json_encode(array_values($submissions), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        file_put_contents($cacheFile, gzencode($json, 9));
-        echo gzencode($json, 9);
-    } catch (PDOException $e) {
-        echo gzencode(json_encode(["error" => $e->getMessage()]), 9);
-    } finally {
-        DbConnection::destroy();
+    if (isCacheValid($cacheFile)) {
+        outputCachedData($cacheFile);
     }
+
+    // header('Content-Type: application/json');
+    // header('Content-Encoding: gzip');
+
+    // try {
+    //     while (ob_get_level() > 0) ob_end_clean();
+    //     $pdo = DbConnection::getInstance()->getConnection();
+    //     $rows = iterator_to_array(fetchSubmissionData($pdo));
+
+    //     $columnMap = [
+    //         'name' => 'Ad',
+    //         'surname' => 'Soyad',
+    //         'email' => 'Mail_Adresi',
+    //         'form_free_consultation_phone' => 'Telefon',
+    //         'field_1440038' => 'Egitim_Durumu',
+    //         'field_cb9b32c' => 'Universite',
+    //         'bolum' => 'Bolum',
+    //         'field_f622b9a' => 'Sinif',
+    //         'field_aecd304' => 'Aldigi_Dersler',
+    //     ];
+
+    //     $submissions = [];
+
+    //     foreach ($rows as $row) {
+    //         $id = $row['submission_id'];
+    //         $key = $row['key'];
+    //         $value = $row['value'];
+
+    //         if (!isset($columnMap[$key])) continue;
+
+    //         if (!isset($submissions[$id])) {
+    //             $submissions[$id] = [
+    //                 'submission_id' => $id,
+    //                 'Tarih' => $row['created_at'],
+    //             };
+    //         }
+
+    //         $submissions[$id][$columnMap[$key]] = $value;
+    //     }
+
+    //     $json = json_encode(array_values($submissions), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+    //     file_put_contents($cacheFile, gzencode($json, 9));
+    //     echo gzencode($json, 9);
+    // } catch (PDOException $e) {
+    //     echo gzencode(json_encode(["error" => $e->getMessage()]), 9);
+    // } finally {
+    //     DbConnection::destroy();
+    // }
 }
 
 main();

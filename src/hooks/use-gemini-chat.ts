@@ -13,7 +13,7 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
-export function useGeminiChat(initialPrompt?: string) {
+export function useGeminiChat() {
   const [response, setResponse] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
