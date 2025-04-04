@@ -10,7 +10,7 @@ import DashboardAnalyticPage from "./pages/DashboardAnalyticPage";
 import SyncButton from "./components/SyncButton";
 import EnhancedLoading from "./components/loading-experience";
 import ExamInfoPage from "./pages/ExamInfoPage";
-import GeminiAnalyzer from "./pages/TestPage";
+import GeminiAnalyzer from "./pages/GeminiAnalyzer";
 
 function App() {
   const { requestAllDataFromPhpAsync, allData, loading } = useDataManager();
@@ -40,7 +40,7 @@ function App() {
               element={<DashboardAnalyticPage />}
             />
             <Route
-              path="/test"
+              path="/ai"
               element={<GeminiAnalyzer submissions={allData.slice(0,5)} />}
             />
             <Route path="/sinav-bilgileri" element={<ExamInfoPage />} />

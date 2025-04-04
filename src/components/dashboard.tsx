@@ -61,14 +61,22 @@ import {
   RefreshCw,
   CalendarIcon,
   ChevronDown,
+  LoaderPinwheel,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import useDataManager from "@/hooks/use-data-manager";
 import { PremiumDataTable } from "./premium-data-table";
+import GeminiAnalyzer from "@/pages/GeminiAnalyzer";
 
 export default function Dashboard() {
   const { allData, loading } = useDataManager();
+  const [showSalesAI, setShowSalesAI] = useState(false);
+  const handleShowSalesAI = () => {
+    localStorage.clear();
+    setShowSalesAI((prev) => !prev);
+  };
   //@ts-ignore
   const [activeTab, setActiveTab] = useState("özet");
   const [searchTerm, setSearchTerm] = useState("");
@@ -508,6 +516,30 @@ export default function Dashboard() {
     );
   }
 
+  if (showSalesAI) {
+    return (
+      <>
+        <div className="flex justify-start m-5">
+          <Button variant="outline" onClick={handleShowSalesAI}>
+            <X className="h-4 w-4" />
+            Satış Potansiyeli Kapat
+          </Button>
+        </div>
+        {filteredData.length < 1000 ? (
+          <>
+            <GeminiAnalyzer submissions={filteredData} />
+          </>
+        ) : (
+          <div className="flex justify-center m-5">
+            <p className="text-muted-foreground">
+              Satış potansiyeli analizi yalnızca 1000'den az veri için
+              kullanılabilir.
+            </p>
+          </div>
+        )}
+      </>
+    );
+  }
   return (
     <div className="container mx-auto py-6 px-4 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -522,6 +554,14 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleShowSalesAI}
+          >
+            <LoaderPinwheel className="h-4 w-4" />
+            Satış Potansiyeli
+          </Button>
           <Button
             variant="outline"
             className="flex items-center gap-2"
@@ -1557,7 +1597,6 @@ export default function Dashboard() {
                         }
                       />
                       {analyzeUniversityDepartmentRelation.map(
-                        
                         (entry, index) => (
                           <Cell
                             key={`cell-${index} - ${entry.university}`}

@@ -87,46 +87,6 @@ interface FilterOptions {
   nextAction: string[];
 }
 
-// Default system prompt for the Gemini model
-const DEFAULT_SYSTEM_PROMPT = `
-## 📄 Modelfile.md – Potansiyel Satın Alıcı Analizcisi
-
-Sen bir eğitim platformu için potansiyel müşterileri analiz eden bir yapay zeka asistanısın.
-Sana verilen öğrenci bilgilerini analiz ederek, bu kişinin ödeme yapma olasılığını ve dönüşüm skorunu değerlendirmelisin.
-
-### Çıktı Formatı
-Yanıtını her zaman aşağıdaki JSON formatında vermelisin:
-
-\`\`\`json
-{
-  "payment_possibility": "yüksek|orta|düşük",
-  "justification": "Değerlendirmenin detaylı açıklaması",
-  "buyer_persona": "Alıcı profili kategorisi",
-  "conversion_score": 0-100 arası sayısal değer,
-  "recommended_strategy": "Önerilen pazarlama stratejisi",
-  "next_action": "kampanya maili|telefon araması|özel teklif"
-}
-\`\`\`
-
-### Değerlendirme Kriterleri
-- Eğitim seviyesi ve bölümü
-- Seçtiği dersler ve ilgi alanları
-- Üniversite ve sınıf bilgisi
-- Diğer demografik bilgiler
-
-### Alıcı Profilleri
-- "kariyer odaklı öğrenci": Kariyerinde ilerlemek için eğitim alan kişiler
-- "akademik odaklı öğrenci": Akademik başarıya odaklanan kişiler
-- "hobi amaçlı öğrenci": Kişisel ilgi alanları için eğitim alan kişiler
-- "zorunlu eğitim alan": Bir gereklilik nedeniyle eğitim alan kişiler
-
-### Dönüşüm Skoru
-0-100 arasında, kişinin ödeme yapma olasılığını gösteren bir skor:
-- 70-100: Yüksek olasılık
-- 40-69: Orta olasılık
-- 0-39: Düşük olasılık
-`;
-
 export default function GeminiAnalyzer({
   submissions = [],
 }: {
@@ -180,80 +140,8 @@ export default function GeminiAnalyzer({
   });
   const { sendMessage } = useGeminiChat();
 
-  // Mock data for testing if no submissions are provided
-  const mockSubmissions: SubmissionData[] =
-    submissions.length > 0
-      ? submissions
-      : [
-          {
-            submission_id: "1",
-            Ad: "Halil Murat",
-            Soyad: "Yıldız",
-            Mail_Adresi: "halilmurat97@gmail.com",
-            Telefon: "5551234567",
-            Egitim_Durumu: "Lisans Öğrencisi",
-            Universite: "Trakya Üniversitesi",
-            Bolum: "İşletme",
-            Sinif: "2. Sınıf",
-            Aldigi_Dersler: "Satış, Pazarlama ve Marka Yaratma",
-            Tarih: "2023-04-15",
-          },
-          {
-            submission_id: "2",
-            Ad: "Emine Nur",
-            Soyad: "Yıldız",
-            Mail_Adresi: "eminenuryildiz@ogr.istanbul.edu.tr",
-            Telefon: "5559876543",
-            Egitim_Durumu: "Lisans Öğrencisi",
-            Universite: "İstanbul Üniversitesi",
-            Bolum: "İşletme",
-            Sinif: "3. Sınıf",
-            Aldigi_Dersler:
-              "Yazılım Teknolojileri ve Yapay Zeka, Dijital Pazarlama, Satış ve Pazarlama",
-            Tarih: "2023-04-16",
-          },
-          {
-            submission_id: "3",
-            Ad: "Hatice Aylin",
-            Soyad: "Gülenç",
-            Mail_Adresi: "aylinngulenc@gmail.com",
-            Telefon: "5553456789",
-            Egitim_Durumu: "Lisans Mezunu",
-            Universite: "Kocaeli Üniversitesi",
-            Bolum: "Bilgisayar Mühendisliği",
-            Sinif: "Mezun",
-            Aldigi_Dersler: "Yazılım Teknolojileri ve Yapay Zeka",
-            Tarih: "2023-04-17",
-          },
-          {
-            submission_id: "4",
-            Ad: "Berkay",
-            Soyad: "Acar",
-            Mail_Adresi: "berkayxx_123@hotmail.com",
-            Telefon: "5554567890",
-            Egitim_Durumu: "Lisans Öğrencisi",
-            Universite: "Bartın Üniversitesi",
-            Bolum: "Bilgisayar Mühendisliği",
-            Sinif: "1. Sınıf",
-            Aldigi_Dersler:
-              "Yazılım Teknolojileri ve Yapay Zeka, Dijital Pazarlama, Satış ve Pazarlama",
-            Tarih: "2023-04-18",
-          },
-          {
-            submission_id: "5",
-            Ad: "Sude Beyza",
-            Soyad: "Türkoğlu",
-            Mail_Adresi: "beyzasude55@gmail.com",
-            Telefon: "5555678901",
-            Egitim_Durumu: "Lisans Öğrencisi",
-            Universite: "İstinye Üniversitesi",
-            Bolum: "İngiliz Dili ve Edebiyatı",
-            Sinif: "3. Sınıf",
-            Aldigi_Dersler:
-              "Satış, Pazarlama ve Marka Yaratma, Dijital Pazarlama, Influencer Marketing ve Girişimcilik, İnsan Kaynakları ve Yetenek Kazanımı",
-            Tarih: "2023-04-19",
-          },
-        ];
+  // Test amaçlı gönderim verileri, eğer gönderim sağlanmamışsa kullanılacak
+  const mockSubmissions: SubmissionData[] = submissions;
 
   // Initialize results array with submission IDs
   useEffect(() => {
